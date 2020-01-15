@@ -11,10 +11,12 @@ class LegoRobot:
         #self._left_sensor = api.sensor.proximity("Pioneer_p3dx_ultrasonicSensor3")
         #self._right_sensor = api.sensor.proximity("Pioneer_p3dx_ultrasonicSensor6")
         self._color_sensor = api.sensor.vision("color_sensor")
+        self._touch_sensor_right = api.sensor.touch("touch_button_right")
+        self._touch_sensor_left = api.sensor.touch("touch_button_left")
 
     def rotate_right(self, speed=2.0):
         self._set_two_motor(speed, -speed)
-
+   
     def rotate_left(self, speed=2.0):
         self._set_two_motor(-speed, speed)
 
@@ -33,6 +35,12 @@ class LegoRobot:
         average = sum(image) / len(image)
         return average
 
+    def touch_right(self):
+        return self._touch_sensor_right.get_state()
+
+    def touch_left(self):
+        return self._touch_sensor_left.get_state()
+
     #def right_length(self):
         #return self._right_sensor.read()[1].distance()
 
@@ -42,20 +50,12 @@ class LegoRobot:
 with VRep.connect("127.0.0.1", 19997) as api:
     #api.simulation.start()
     r = LegoRobot(api)
-    """
-    while True:
-        print(r.color())
-        r.move_forward()
-        key = input("")
-        if key=="w":
-            r.rotate_left()
-        elif key=="d":
-            r.rotate_right()
-        time.sleep(0.01)
-    """
+
     #r.move_forward()
     follow = False
     while True:
+        print('right',r.touch_right(),'left',r.touch_left())
+        """
         if follow == True:
             if r.color()==5:
                 r.rotate_right()
@@ -67,6 +67,8 @@ with VRep.connect("127.0.0.1", 19997) as api:
         else:
             if r.color()==5:
                 follow = True
+        """
+        #print(r.touch())
 #api.simulation.stop()
 
 
