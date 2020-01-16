@@ -126,24 +126,49 @@ with VRep.connect("127.0.0.1", 19997) as api:
     follow = False
     last_pos = [RESOLUTION[RES][6], RESOLUTION[RES][7]]
 
-    r.stop()
-    r.rotate_left()
-    time.sleep(0.05)
-    while True:
-        if follow:
-            pos = r.position()
-            min_id = find_closest(pos, last_pos)
-            last_pos = min_id
-            update_map(min_id)
+    manual = True
 
-            if r.color()==5:
-                r.rotate_right(5)
-            elif r.color()==-1:
-                r.rotate_left(5)
-            time.sleep(0.05)
-            r.move_forward()
-            time.sleep(0.075)
+    r.stop()
+    if not manual:
+        r.rotate_left()
+        time.sleep(0.05)
+    while True:
+        if not manual:
+            if follow:
+                pos = r.position()
+                min_id = find_closest(pos, last_pos)
+                last_pos = min_id
+                update_map(min_id)
+
+                if r.color()==5:
+                    r.rotate_right(5)
+                elif r.color()==-1:
+                    r.rotate_left(5)
+                time.sleep(0.05)
+                r.move_forward()
+                time.sleep(0.075)
+            else:
+                color = r.color()
+                b1 = r.touch_right()
+                b2 = r.touch_left()
+                pos = r.position()
+                min_id = find_closest(pos, last_pos)
+                last_pos = min_id
+                update_map(min_id)
+                if color == 5:
+                    follow = True
         else:
+            key = input("Press a key please\n")
+            if key.lower() == "a":
+                r.rotate_left(10)
+            elif key.lower() == "d":
+                r.rotate_right(10)
+            elif key.lower() == "w":
+                r.move_forward(25)
+            elif key.lower() == "s":
+                r.move_backward(25)
+            time.sleep(0.1)
+            r.stop()
             color = r.color()
             b1 = r.touch_right()
             b2 = r.touch_left()
@@ -153,3 +178,4 @@ with VRep.connect("127.0.0.1", 19997) as api:
             update_map(min_id)
             if color == 5:
                 follow = True
+
