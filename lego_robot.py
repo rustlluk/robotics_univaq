@@ -8,8 +8,7 @@ class LegoRobot:
         self._api = api
         self._left_motor = api.joint.with_velocity_control("left_motor")
         self._right_motor = api.joint.with_velocity_control("right_motor")
-        #self._left_sensor = api.sensor.proximity("Pioneer_p3dx_ultrasonicSensor3")
-        #self._right_sensor = api.sensor.proximity("Pioneer_p3dx_ultrasonicSensor6")
+        self._ultrasonic_sensor = api.sensor.proximity("ultrasonic_sensor")
         self._color_sensor = api.sensor.vision("color_sensor")
         self._touch_sensor_right = api.sensor.touch("touch_button_right")
         self._touch_sensor_left = api.sensor.touch("touch_button_left")
@@ -41,11 +40,8 @@ class LegoRobot:
     def touch_left(self):
         return self._touch_sensor_left.get_state()
 
-    #def right_length(self):
-        #return self._right_sensor.read()[1].distance()
-
-    #def left_length(self):
-        #return self._left_sensor.read()[1].distance()
+    def ultrasonic(self):
+        return self._ultrasonic_sensor.read()[1].distance()
 
 with VRep.connect("127.0.0.1", 19997) as api:
     #api.simulation.start()
@@ -54,7 +50,8 @@ with VRep.connect("127.0.0.1", 19997) as api:
     #r.move_forward()
     follow = False
     while True:
-        print('right',r.touch_right(),'left',r.touch_left())
+        #print('right',r.touch_right(),'left',r.touch_left())
+        print(r.ultrasonic())
         """
         if follow == True:
             if r.color()==5:
