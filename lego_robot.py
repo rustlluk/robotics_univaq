@@ -50,5 +50,8 @@ class LegoRobot:
     def position(self):
         return self._tracer.get_position()
 
+    def angle(self):
+        return self._tracer.get_orientation()
+
 
 
