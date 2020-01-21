@@ -175,8 +175,6 @@ def wander_through(last_pos):
         prolog.retractall("position(_)")
         prolog.assertz("position("+str(pos)+")")
         state = list(prolog.query("stateMachine(X)"))[0]["X"]
-        print(state)
-        print(list(prolog.query("obs(X)")))
         if state == "state1":
             if direction == "south":
                 r.move_backward(2)
@@ -188,7 +186,7 @@ def wander_through(last_pos):
                 column += 1
                 prolog.retractall("column(_)")
                 prolog.assertz("column("+str(column)+")")
-                r.rotate_right(2.25)
+                r.rotate_right(2)
                 time.sleep(CPU_[CPU][0])
                 r.move_forward(6)
                 time.sleep(CPU_[CPU][0])
@@ -207,7 +205,7 @@ def wander_through(last_pos):
                 r.rotate_left(1.5)
                 time.sleep(CPU_[CPU][0])
             elif direction == "north":
-                r.move_backward(4)
+                r.move_backward(2)
                 time.sleep(0.5)
                 r.rotate_right(2.25)
                 time.sleep(CPU_[CPU][0])
@@ -237,8 +235,8 @@ def wander_through(last_pos):
         elif state == "state2":
             r.rotate_left(2)
             time.sleep(CPU_[CPU][0])
-            r.move_forward(3)
-            time.sleep(1.2)
+            r.move_forward(2)
+            time.sleep(2)
             r.rotate_left(2)
             time.sleep(CPU_[CPU][0])
             direction = "south"
@@ -250,8 +248,8 @@ def wander_through(last_pos):
         elif state == "state3":
             r.rotate_right(2)
             time.sleep(CPU_[CPU][0])
-            r.move_forward(3)
-            time.sleep(1.2)
+            r.move_forward(2)
+            time.sleep(2)
             r.rotate_right(2)
             time.sleep(CPU_[CPU][0])
             direction = "north"
