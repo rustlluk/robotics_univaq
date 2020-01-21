@@ -1,9 +1,6 @@
-from lego_robot_vrep import LegoRobot
-from pyvrep import VRep
-import time
-import pygame
 import numpy as np
 from pyswip import Prolog
+from lego_robot import LegoRobot
 
 RESOLUTION = {"1":[20, 18, 28, 1, 20, 30, 19, 29, 0.1], "0.5":[10, 37, 57, 2, 40, 60, 39, 59, 0.05], "12": [20, 8, 8, 1, 10, 10, 9, 9, 0.1],}
 CPU_ = {"slow": [2], "fast": [1.5]}
@@ -19,7 +16,7 @@ prolog.assertz("obs(0)")
 prolog.assertz("bottom_corner("+str(RESOLUTION[RES][4]-1)+")")
 prolog.assertz("column("+str(column)+")")
 
-
+"""
 def update_map(one_id):
     for row_id, row in enumerate(world2):
         for col_id, col in enumerate(row):
@@ -46,6 +43,7 @@ def update_map(one_id):
                 pygame.draw.rect(screen, (51, 204, 51), pygame.Rect(col_id * RESOLUTION[RES][0] + 150, row_id * RESOLUTION[RES][0] + 100, RESOLUTION[RES][0], RESOLUTION[RES][0]))
                 world2[row_id][col_id] = 2
     pygame.display.flip()
+"""
 
 
 def find_closest(pos, last_pos, b1, b2, direction):
@@ -82,11 +80,11 @@ def find_closest(pos, last_pos, b1, b2, direction):
                 world2[min_id[0] + x][min_id[1] + y] = 5
 
     if world2[min_id[0]][min_id[1]] == 5:
-        world2[min_id[0]][min_id[1]] = 51
+        world2[min_id[0]][min_id[1]] = 5  # 51
     elif world2[min_id[0]][min_id[1]] == 3:
-        world2[min_id[0]][min_id[1]] = 31
+        world2[min_id[0]][min_id[1]] = 31  # 31
     elif world2[min_id[0]][min_id[1]] == 2:
-        world2[min_id[0]][min_id[1]] = 21
+        world2[min_id[0]][min_id[1]] = 21  # 21
     else:
         world2[min_id[0]][min_id[1]]=1
 
@@ -123,46 +121,43 @@ def pygame_loop(last_pos, direction = ""):
     b2 = r.touch_left()
     pos = r.position()
     min_id = find_closest(pos, last_pos, b1, b2, direction)
-    update_map(min_id)
+    #update_map(min_id)
     return min_id#, (b1 or b2)
 
 
 def line_follower():
     if color == 0:
-        r.rotate_right(0.5)
+        r.rotate_right(50, 0.1)
     elif color == -1:
-        r.rotate_left(0.5)
+        r.rotate_left(50, 0.1)
     else:
         if (last_pos[1] <= RESOLUTION[RES][3] + 1 and (
                 last_pos[0] >= RESOLUTION[RES][1] - 1 or last_pos[0] <= RESOLUTION[RES][3] + 1)) or (
                 last_pos[1] >= RESOLUTION[RES][2] - 1 and (
                 last_pos[0] >= RESOLUTION[RES][1] - 1 or last_pos[0] <= RESOLUTION[RES][3] + 1)):
-            r.move_forward(2)
+            r.move_forward(20, 0.1)
         else:
-            r.move_forward(10)
+            r.move_forward(50, 0.1)
 
 
 def manual_control():
     key = input("Press a key please\n")
     if key.lower() == "a":
-        r.rotate_left(10)
+        r.rotate_left(50, 0.5)
     elif key.lower() == "d":
-        r.rotate_right(10)
+        r.rotate_right(50, 0.5)
     elif key.lower() == "w":
-        r.move_forward(25)
+        r.move_forward(50, 1)
     elif key.lower() == "s":
-        r.move_backward(25)
-    time.sleep(0.1)
+        r.move_backward(50, 1)
     r.stop()
 
 
 def get_to_position():
-    r.rotate_right(1)
-    time.sleep(1)
+    r.rotate_right(50, 0.5)
     while r.color() == -1:
-        r.rotate_right(1)
-    r.rotate_left(2)
-    time.sleep(0.5)
+        r.rotate_right(10, 0.05)
+    r.rotate_left(50, 0.5)
     r.stop()
 
 
@@ -177,106 +172,76 @@ def wander_through(last_pos):
         state = list(prolog.query("stateMachine(X)"))[0]["X"]
         if state == "state1":
             if direction == "south":
-                r.move_backward(2)
-                time.sleep(0.5)
-                r.rotate_left(2.25)
-                time.sleep(CPU_[CPU][0])
-                r.move_forward(3)
-                time.sleep(CPU_[CPU][0])
+                r.move_backward(50, 0.25)
+                r.rotate_left(50, 0.5)
+                r.move_forward(50, 1)
                 column += 1
                 prolog.retractall("column(_)")
                 prolog.assertz("column("+str(column)+")")
-                r.rotate_right(2)
-                time.sleep(CPU_[CPU][0])
-                r.move_forward(6)
-                time.sleep(CPU_[CPU][0])
+                r.rotate_right(50, 0.5)
+                r.move_forward(50, 1)
                 while world2[pos[0]][pos[1]-1] == 2:
-                    r.move_forward(1)
+                    r.move_forward(50, 0.1)
                     pos = pygame_loop(pos, direction)
-                r.move_forward(2)
-                time.sleep(CPU_[CPU][0])
-                r.rotate_right(2)
-                time.sleep(CPU_[CPU][0])
+                r.move_forward(50, 1)
+                r.rotate_right(50, 0.5)
                 column -= 1
                 prolog.retractall("column(_)")
                 prolog.assertz("column("+str(column)+")")
-                r.move_forward(2)
-                time.sleep(CPU_[CPU][0])
-                r.rotate_left(1.5)
-                time.sleep(CPU_[CPU][0])
+                r.move_forward(50, 1)
+                r.rotate_left(50, 0.5)
             elif direction == "north":
-                r.move_backward(2)
-                time.sleep(0.5)
-                r.rotate_right(2.25)
-                time.sleep(CPU_[CPU][0])
-                r.move_forward(3)
-                time.sleep(CPU_[CPU][0])
+                r.move_backward(50, 0.25)
+                r.rotate_right(50, 0.5)
+                r.move_forward(50, 1)
                 column += 1
                 prolog.retractall("column(_)")
                 prolog.assertz("column("+str(column)+")")
-                r.rotate_left(2.25)
-                time.sleep(CPU_[CPU][0])
-                r.move_forward(6)
-                time.sleep(CPU_[CPU][0])
+                r.rotate_left(50, 0.5)
+                r.move_forward(50, 1)
                 while world2[pos[0]][pos[1] - 1] == 2:
-                    r.move_forward(1)
+                    r.move_forward(50, 0.1)
                     pos = pygame_loop(pos, direction)
-                r.move_forward(2)
-                time.sleep(CPU_[CPU][0])
-                r.rotate_left(2)
-                time.sleep(CPU_[CPU][0])
+                r.move_forward(50, 1)
+                r.rotate_left(50, 0.5)
                 column -= 1
                 prolog.retractall("column(_)")
                 prolog.assertz("column("+str(column)+")")
-                r.move_forward(2)
-                time.sleep(CPU_[CPU][0])
-                r.rotate_right(1.5)
-                time.sleep(CPU_[CPU][0])
+                r.move_forward(50, 1)
+                r.rotate_right(50, 0.5)
         elif state == "state2":
-            r.rotate_left(2)
-            time.sleep(CPU_[CPU][0])
-            r.move_forward(2)
-            time.sleep(2)
-            r.rotate_left(2)
-            time.sleep(CPU_[CPU][0])
+            r.rotate_left(50, 0.5)
+            r.move_forward(50, 0.5)
+            r.rotate_left(50, 0.5)
             direction = "south"
-            r.move_forward(1)
-            time.sleep(0.25)
+            r.move_forward(50, 0.5)
             column -= 1
             prolog.retractall("column(_)")
             prolog.assertz("column(" + str(column) + ")")
         elif state == "state3":
-            r.rotate_right(2)
-            time.sleep(CPU_[CPU][0])
-            r.move_forward(2)
-            time.sleep(2)
-            r.rotate_right(2)
-            time.sleep(CPU_[CPU][0])
+            r.rotate_right(50, 0.5)
+            r.move_forward(50, 0.5)
+            r.rotate_right(50, 0.5)
             direction = "north"
-            r.move_forward(1)
-            time.sleep(0.25)
+            r.move_forward(50, 0.5)
             column -= 1
             prolog.retractall("column(_)")
             prolog.assertz("column(" + str(column) + ")")
         elif state == "state4":
             if direction == "north":
-                r.rotate_left(0.25)
+                r.rotate_left(10, 0.05)
             else:
-                r.rotate_right(0.25)
+                r.rotate_right(10, 0.05)
         elif state == "state5":
             if direction == "north":
-                r.rotate_right(0.25)
+                r.rotate_right(10, 0.05)
             else:
-                r.rotate_left(0.25)
+                r.rotate_left(10, 0.05)
         elif state == "state6":
-            r.move_forward(4)
+            r.move_forward(50, 0.1)
         last_pos = pos
 
 
-pygame.init()
-screen = pygame.display.set_mode((600, 400))
-screen.fill((255, 255, 255))
-pygame.display.update()
 world = []
 for row in range(RESOLUTION[RES][4]):
     world.append([])
@@ -284,67 +249,61 @@ for row in range(RESOLUTION[RES][4]):
         world[row].append([0, 0])
 world2 = np.zeros((RESOLUTION[RES][4], RESOLUTION[RES][5]))
 
-with VRep.connect("127.0.0.1", 19997) as api:
-    r = LegoRobot(api)
-    r.stop()
-    bottom_right = r.position()
+r = LegoRobot()
 
-    world[RESOLUTION[RES][6]][RESOLUTION[RES][7]][0] = 1.42
-    world[RESOLUTION[RES][6]][RESOLUTION[RES][7]][1] = -0.98
+world[RESOLUTION[RES][6]][RESOLUTION[RES][7]][0] = 0
+world[RESOLUTION[RES][6]][RESOLUTION[RES][7]][1] = 0
 
-    for col in range(RESOLUTION[RES][7],-1,-1):
-        for row in range(RESOLUTION[RES][6], -1, -1):
-            if not (col == RESOLUTION[RES][7] and row == RESOLUTION[RES][6]):
-                if col != RESOLUTION[RES][7]:
-                    world[row][col][0] = world[row][col+1][0] - RESOLUTION[RES][8]
-                    world[row][col][1] = world[row][col + 1][1]
-                else:
-                    world[row][col][0] = world[row+1][col][0]
-                    world[row][col][1] = world[row + 1][col][1] + RESOLUTION[RES][8]
-    world2[RESOLUTION[RES][6]][RESOLUTION[RES][7]] = 1
-    update_map([-1, -1])
-
-    follow = False
-    can_follow = True
-    follow_start = None
-    wander = False
-
-    last_pos = [RESOLUTION[RES][6], RESOLUTION[RES][7]]
-    color = 0
-
-    manual = False
-
-    r.stop()
-    if not manual:
-        r.rotate_left()
-    while not END:
-        last_pos = pygame_loop(last_pos)
-        if not manual:
-            if follow:
-                color = r.color()
-                line_follower()
-                if last_pos == follow_start and np.count_nonzero(np.where(world2==5))>5:
-                    follow = False
-                    r.stop()
-                    get_to_position()
-                    wander = True
-            elif wander:
-                #get_to_position()
-                r.move_forward(5)
-                time.sleep(0.5)
-                wander_through(last_pos)
-                wander = False
-                break
+for col in range(RESOLUTION[RES][7], -1, -1):
+    for row in range(RESOLUTION[RES][6], -1, -1):
+        if not (col == RESOLUTION[RES][7] and row == RESOLUTION[RES][6]):
+            if col != RESOLUTION[RES][7]:
+                world[row][col][0] = world[row][col+1][0] + RESOLUTION[RES][8]
+                world[row][col][1] = world[row][col + 1][1]
             else:
-                color = r.color()
-                if color == 0 and can_follow:
-                    follow_start = last_pos
-                    follow = True
-                    can_follow = False
+                world[row][col][0] = world[row+1][col][0]
+                world[row][col][1] = world[row + 1][col][1] + RESOLUTION[RES][8]
+
+world2[RESOLUTION[RES][6]][RESOLUTION[RES][7]] = 1
+update_map([-1, -1])
+
+follow = False
+can_follow = True
+follow_start = None
+wander = False
+
+last_pos = [RESOLUTION[RES][6], RESOLUTION[RES][7]]
+color = 0
+
+manual = False
+
+while not END:
+    last_pos = pygame_loop(last_pos)
+    if not manual:
+        if follow:
+            color = r.color()
+            line_follower()
+            if last_pos == follow_start and np.count_nonzero(np.where(world2==5))>5:
+                follow = False
+                r.stop()
+                get_to_position()
+                wander = True
+        elif wander:
+            #get_to_position()
+            r.move_forward(50, 0.5)
+            wander_through(last_pos)
+            wander = False
+            break
         else:
-            manual_control()
-    r.stop()
-    input()
-    #api.simulation.pause()
+            color = r.color()
+            if color == 0 and can_follow:
+                follow_start = last_pos
+                follow = True
+                can_follow = False
+    else:
+        manual_control()
+r.stop()
+input()
+#api.simulation.pause()
 
 

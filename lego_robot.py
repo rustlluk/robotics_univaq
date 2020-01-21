@@ -1,57 +1,40 @@
-from pyvrep import VRep
-import time
+from ev3dev2.sensor.lego import ColorSensor
+from ev3dev2.sensor.lego import TouchSensor
+from ev3dev2.sensor import INPUT_1, INPUT_2
+from odometrium.main import Odometrium
 
 
 class LegoRobot:
+    def __init__(self):
+        self.color_sensor = ColorSensor()
+        self.touch_sensor1 = TouchSensor(INPUT_1)
+        self.touch_sensor2 = TouchSensor(INPUT_2)
+        self.odo = Odometrium(left='B', right='C', wheel_diameter=5.5, wheel_distance=12, count_per_rot_left=None,
+                              count_per_rot_right=None, debug=False, curve_adjustment=1)
 
-    def __init__(self, api: VRep):
-        self._api = api
-        self._left_motor = api.joint.with_velocity_control("left_motor")
-        self._right_motor = api.joint.with_velocity_control("right_motor")
-        self._ultrasonic_sensor = api.sensor.proximity("ultrasonic_sensor")
-        self._color_sensor = api.sensor.vision("color_sensor")
-        self._touch_sensor_right = api.sensor.touch("touch_button_right")
-        self._touch_sensor_left = api.sensor.touch("touch_button_left")
-        self._tracer = api.sensor.position("LineTracer")
+    def move_forward(self, speed, time):
+        self.odo.move(speed, speed, time)
 
-    def rotate_right(self, speed=2.0):
-        self._set_two_motor(speed, -speed)
-   
-    def rotate_left(self, speed=2.0):
-        self._set_two_motor(-speed, speed)
+    def rotate_right(self, speed, time):
+        self.odo.move(speed, -speed, time)
 
-    def move_forward(self, speed=2.0):
-        self._set_two_motor(speed, speed)
+    def rotate_left(self, speed, time):
+        self.odo.move(-speed, speed, time)
 
-    def move_backward(self, speed=2.0):
-        self._set_two_motor(-speed, -speed)
-
-    def _set_two_motor(self, left: float, right: float):
-        self._left_motor.set_target_velocity(left)
-        self._right_motor.set_target_velocity(right)
+    def move_backward(self, speed, time):
+        self.odo.move(-speed, -speed, time)
 
     def stop(self):
-        self._set_two_motor(0, 0)
+        self.odo.stop()
 
-    def color(self) -> int:
-        image = self._color_sensor.raw_image(is_grey_scale=True)
-        average = sum(image) / len(image)
-        return average
+    def color(self):
+        return self.color_sensor.reflected_light_intensity
 
     def touch_right(self):
-        return self._touch_sensor_right.get_state()
+        return self.touch_sensor1.is_pressed
 
     def touch_left(self):
-        return self._touch_sensor_left.get_state()
-
-    def ultrasonic(self):
-        return self._ultrasonic_sensor.read()[1].distance()
+        return self.touch_sensor2.is_pressed
 
     def position(self):
-        return self._tracer.get_position()
-
-    def angle(self):
-        return self._tracer.get_orientation()
-
-
-
+        return [self.odo.x, self.odo.y]
