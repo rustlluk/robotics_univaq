@@ -13,7 +13,7 @@ CPU = "slow"
 directions = {"west": [1, 1.57], "east": [1, -1.57],
               "south": [0, -1.57], "north": [0, 1.57]}
 END = False
-
+column = RESOLUTION[RES][5]-1
 def update_map(one_id):
     for row_id, row in enumerate(world2):
         for col_id, col in enumerate(row):
@@ -43,7 +43,7 @@ def update_map(one_id):
 
 
 def find_closest(pos, last_pos, b1, b2, direction):
-    global END
+    global END, column
     min = float("inf")
     for row_id, row in enumerate(world):
         for col_id, col in enumerate(row):
@@ -98,7 +98,7 @@ def find_closest(pos, last_pos, b1, b2, direction):
             x = -1
             y = 0
 
-        world2[min_id[0]+x][min_id[1]+y] = 2
+        world2[min_id[0]+x][column] = 2
 
     if color == 84:
         world2[min_id[0]][min_id[1]] = 3
@@ -156,9 +156,8 @@ def get_to_position():
 
 
 def wander_through(last_pos):
-    global color
+    global color, column
     direction = "north"
-    col = RESOLUTION[RES][5]-1
     while not END:
         color = r.color()
         pos, obs = pygame_loop(last_pos, direction)
@@ -166,12 +165,12 @@ def wander_through(last_pos):
             if direction == "south":
                 r.move_backward(2)
                 time.sleep(0.5)
-                r.rotate_left(2)
+                r.rotate_left(2.25)
                 time.sleep(CPU_[CPU][0])
                 r.move_forward(3)
                 time.sleep(CPU_[CPU][0])
-                col += 1
-                r.rotate_right(2)
+                column += 1
+                r.rotate_right(2.25)
                 time.sleep(CPU_[CPU][0])
                 r.move_forward(6)
                 time.sleep(CPU_[CPU][0])
@@ -182,20 +181,20 @@ def wander_through(last_pos):
                 time.sleep(CPU_[CPU][0])
                 r.rotate_right(2)
                 time.sleep(CPU_[CPU][0])
-                col -= 1
-                r.move_forward(2.5)
+                column -= 1
+                r.move_forward(2)
                 time.sleep(CPU_[CPU][0])
-                r.rotate_left(2)
+                r.rotate_left(1.5)
                 time.sleep(CPU_[CPU][0])
             elif direction == "north":
                 r.move_backward(4)
                 time.sleep(0.5)
-                r.rotate_right(2)
+                r.rotate_right(2.25)
                 time.sleep(CPU_[CPU][0])
                 r.move_forward(3)
                 time.sleep(CPU_[CPU][0])
-                col += 1
-                r.rotate_left(2)
+                column += 1
+                r.rotate_left(2.25)
                 time.sleep(CPU_[CPU][0])
                 r.move_forward(6)
                 time.sleep(CPU_[CPU][0])
@@ -206,10 +205,10 @@ def wander_through(last_pos):
                 time.sleep(CPU_[CPU][0])
                 r.rotate_left(2)
                 time.sleep(CPU_[CPU][0])
-                col -= 1
-                r.move_forward(2.5)
+                column -= 1
+                r.move_forward(2)
                 time.sleep(CPU_[CPU][0])
-                r.rotate_right(2)
+                r.rotate_right(1.5)
                 time.sleep(CPU_[CPU][0])
         elif pos[0] == 0:
             r.rotate_left(2)
@@ -219,9 +218,9 @@ def wander_through(last_pos):
             r.rotate_left(2)
             time.sleep(CPU_[CPU][0])
             direction = "south"
-            r.move_forward(2)
-            time.sleep(0.3)
-            col -= 1
+            r.move_forward(1)
+            time.sleep(0.25)
+            column -= 1
         elif pos[0] == RESOLUTION[RES][4]-1:
             r.rotate_right(2)
             time.sleep(CPU_[CPU][0])
@@ -230,15 +229,15 @@ def wander_through(last_pos):
             r.rotate_right(2)
             time.sleep(CPU_[CPU][0])
             direction = "north"
-            r.move_forward(2)
-            time.sleep(0.3)
-            col -= 1
-        elif pos[1] > col:
+            r.move_forward(1)
+            time.sleep(0.25)
+            column -= 1
+        elif pos[1] > column:
             if direction == "north":
                 r.rotate_left(0.15)
             else:
                 r.rotate_right(0.15)
-        elif pos[1] < col:
+        elif pos[1] < column:
             if direction == "north":
                 r.rotate_right(0.15)
             else:
@@ -301,7 +300,6 @@ with VRep.connect("127.0.0.1", 19997) as api:
                 if last_pos == follow_start and np.count_nonzero(np.where(world2==5))>5:
                     follow = False
                     r.stop()
-                    print("End following")
                     get_to_position()
                     wander = True
             elif wander:
