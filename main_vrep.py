@@ -6,11 +6,13 @@ import numpy as np
 import threading
 import multiprocessing
 
-RESOLUTION = {"1":[20, 18, 28, 1, 20, 30, 19, 29, 0.1], "0.5":[10, 37, 57, 2, 40, 60, 39, 59, 0.05]}
-RES = "1"
+RESOLUTION = {"1":[20, 18, 28, 1, 20, 30, 19, 29, 0.1], "0.5":[10, 37, 57, 2, 40, 60, 39, 59, 0.05], "12": [20, 8, 8, 1, 10, 10, 9, 9, 0.1],}
+CPU_ = {"slow": [2], "fast": [1.5]}
+RES = "12"
+CPU = "slow"
 directions = {"west": [1, 1.57], "east": [1, -1.57],
               "south": [0, -1.57], "north": [0, 1.57]}
-
+END = False
 
 def update_map(one_id):
     for row_id, row in enumerate(world2):
@@ -34,10 +36,14 @@ def update_map(one_id):
             elif col == 31:
                 pygame.draw.rect(screen, (51, 204, 51), pygame.Rect(col_id * RESOLUTION[RES][0] + 150, row_id * RESOLUTION[RES][0] + 100, RESOLUTION[RES][0], RESOLUTION[RES][0]))
                 world2[row_id][col_id] = 3
+            elif col == 21:
+                pygame.draw.rect(screen, (51, 204, 51), pygame.Rect(col_id * RESOLUTION[RES][0] + 150, row_id * RESOLUTION[RES][0] + 100, RESOLUTION[RES][0], RESOLUTION[RES][0]))
+                world2[row_id][col_id] = 2
     pygame.display.flip()
 
 
-def find_closest(pos, last_pos, b1, b2):
+def find_closest(pos, last_pos, b1, b2, direction):
+    global END
     min = float("inf")
     for row_id, row in enumerate(world):
         for col_id, col in enumerate(row):
@@ -73,64 +79,45 @@ def find_closest(pos, last_pos, b1, b2):
         world2[min_id[0]][min_id[1]] = 51
     elif world2[min_id[0]][min_id[1]] == 3:
         world2[min_id[0]][min_id[1]] = 31
+    elif world2[min_id[0]][min_id[1]] == 2:
+        world2[min_id[0]][min_id[1]] = 21
     else:
         world2[min_id[0]][min_id[1]]=1
 
     if b1 or b2:
-            """
-            if min_id[1] < last_pos[1]:
-                x = 0
-                y = -1
-            elif min_id[1] > last_pos[1]:
-                x = 0
-                y = 1
-            elif min_id[0] > last_pos[0]:
-                x = 1
-                y = 0
-            elif min_id[0] < last_pos[0]:
-                x = -1
-                y = 0
-            """
-            min_dist = float("inf")
-            angle = r.angle()
-            for direction in directions:
-                dist = abs(directions[direction][1] - angle[directions[direction][0]])
-                if dist < min_dist:
-                    min_dist = dist
-                    direction_ = direction
+        if direction == "west":
+            x = 0
+            y = -1
+        elif direction == "east":
+            x = 0
+            y = 1
+        elif direction == "south":
+            x = 1
+            y = 0
+        elif direction == "north":
+            x = -1
+            y = 0
 
-            if direction_ == "west":
-                x = 0
-                y = -1
-            elif direction_ == "east":
-                x = 0
-                y = 1
-            elif direction_ == "south":
-                x = 1
-                y = 0
-            elif direction_ == "north":
-                x = -1
-                y = 0
+        world2[min_id[0]+x][min_id[1]+y] = 2
 
-            world2[min_id[0]+x][min_id[1]+y] = 2
-
-    if color == 85:
+    if color == 84:
         world2[min_id[0]][min_id[1]] = 3
+        END = True
 
     return min_id
 
 
-def pygame_loop(last_pos):
+def pygame_loop(last_pos, direction = ""):
     b1 = r.touch_right()
     b2 = r.touch_left()
     pos = r.position()
-    min_id = find_closest(pos, last_pos, b1, b2)
+    min_id = find_closest(pos, last_pos, b1, b2, direction)
     update_map(min_id)
-    return min_id
+    return min_id, (b1 or b2)
 
 
 def line_follower():
-    if color == 5:
+    if color == 0:
         r.rotate_right(0.5)
     elif color == -1:
         r.rotate_left(0.5)
@@ -163,57 +150,106 @@ def get_to_position():
     time.sleep(1)
     while r.color() == -1:
         r.rotate_right(1)
-    r.rotate_left(1)
+    r.rotate_left(2)
     time.sleep(0.5)
     r.stop()
 
 
 def wander_through(last_pos):
+    global color
     direction = "north"
     col = RESOLUTION[RES][5]-1
-    while True:
-        pos = pygame_loop(last_pos)
-        if pos[0] == 0:
+    while not END:
+        color = r.color()
+        pos, obs = pygame_loop(last_pos, direction)
+        if obs:
+            if direction == "south":
+                r.move_backward(2)
+                time.sleep(0.5)
+                r.rotate_left(2)
+                time.sleep(CPU_[CPU][0])
+                r.move_forward(3)
+                time.sleep(CPU_[CPU][0])
+                col += 1
+                r.rotate_right(2)
+                time.sleep(CPU_[CPU][0])
+                r.move_forward(6)
+                time.sleep(CPU_[CPU][0])
+                while world2[pos[0]][pos[1]-1] == 2:
+                    r.move_forward(1)
+                    pos, obs = pygame_loop(pos, direction)
+                r.move_forward(2)
+                time.sleep(CPU_[CPU][0])
+                r.rotate_right(2)
+                time.sleep(CPU_[CPU][0])
+                col -= 1
+                r.move_forward(2.5)
+                time.sleep(CPU_[CPU][0])
+                r.rotate_left(2)
+                time.sleep(CPU_[CPU][0])
+            elif direction == "north":
+                r.move_backward(4)
+                time.sleep(0.5)
+                r.rotate_right(2)
+                time.sleep(CPU_[CPU][0])
+                r.move_forward(3)
+                time.sleep(CPU_[CPU][0])
+                col += 1
+                r.rotate_left(2)
+                time.sleep(CPU_[CPU][0])
+                r.move_forward(6)
+                time.sleep(CPU_[CPU][0])
+                while world2[pos[0]][pos[1] - 1] == 2:
+                    r.move_forward(1)
+                    pos, obs = pygame_loop(pos, direction)
+                r.move_forward(2)
+                time.sleep(CPU_[CPU][0])
+                r.rotate_left(2)
+                time.sleep(CPU_[CPU][0])
+                col -= 1
+                r.move_forward(2.5)
+                time.sleep(CPU_[CPU][0])
+                r.rotate_right(2)
+                time.sleep(CPU_[CPU][0])
+        elif pos[0] == 0:
             r.rotate_left(2)
-            time.sleep(1.5)
+            time.sleep(CPU_[CPU][0])
             r.move_forward(3)
-            time.sleep(1.25)
+            time.sleep(1.2)
             r.rotate_left(2)
-            time.sleep(1.5)
+            time.sleep(CPU_[CPU][0])
             direction = "south"
+            r.move_forward(2)
+            time.sleep(0.3)
             col -= 1
         elif pos[0] == RESOLUTION[RES][4]-1:
             r.rotate_right(2)
-            time.sleep(1.5)
+            time.sleep(CPU_[CPU][0])
             r.move_forward(3)
-            time.sleep(1.25)
+            time.sleep(1.2)
             r.rotate_right(2)
-            time.sleep(1.5)
+            time.sleep(CPU_[CPU][0])
             direction = "north"
+            r.move_forward(2)
+            time.sleep(0.3)
             col -= 1
         elif pos[1] > col:
             if direction == "north":
-                r.rotate_left(0.4)
-                #time.sleep(0.25)
+                r.rotate_left(0.15)
             else:
-                r.rotate_right(0.4)
-                #time.sleep(0.25)
-            pos = pygame_loop(pos)
+                r.rotate_right(0.15)
         elif pos[1] < col:
             if direction == "north":
-                r.rotate_right(0.4)
-                #time.sleep(0.25)
+                r.rotate_right(0.15)
             else:
-                r.rotate_left(0.4)
-                #time.sleep(0.25)
-            pos = pygame_loop(pos)
+                r.rotate_left(0.15)
         else:
             r.move_forward(5)
         last_pos = pos
 
 
 pygame.init()
-screen = pygame.display.set_mode((900, 600))
+screen = pygame.display.set_mode((600, 400))
 screen.fill((255, 255, 255))
 pygame.display.update()
 world = []
@@ -250,20 +286,17 @@ with VRep.connect("127.0.0.1", 19997) as api:
 
     last_pos = [RESOLUTION[RES][6], RESOLUTION[RES][7]]
     color = 0
-    #lock = threading.Lock()
-    #t1 = threading.Thread(target=pygame_loop, args=(lock,))
-    #t1.start()
 
     manual = False
 
     r.stop()
     if not manual:
         r.rotate_left()
-    while True:
-        last_pos = pygame_loop(last_pos)
-        color = r.color()
+    while not END:
+        last_pos, _ = pygame_loop(last_pos)
         if not manual:
             if follow:
+                color = r.color()
                 line_follower()
                 if last_pos == follow_start and np.count_nonzero(np.where(world2==5))>5:
                     follow = False
@@ -276,12 +309,18 @@ with VRep.connect("127.0.0.1", 19997) as api:
                 r.move_forward(5)
                 time.sleep(0.5)
                 wander_through(last_pos)
+                wander = False
                 break
             else:
-                if color == 5 and can_follow:
+                color = r.color()
+                if color == 0 and can_follow:
                     follow_start = last_pos
                     follow = True
                     can_follow = False
         else:
             manual_control()
+    r.stop()
+    input()
+    #api.simulation.pause()
+
 
