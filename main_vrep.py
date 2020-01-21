@@ -3,8 +3,7 @@ from pyvrep import VRep
 import time
 import pygame
 import numpy as np
-import threading
-import multiprocessing
+from pyswip import Prolog
 
 RESOLUTION = {"1":[20, 18, 28, 1, 20, 30, 19, 29, 0.1], "0.5":[10, 37, 57, 2, 40, 60, 39, 59, 0.05], "12": [20, 8, 8, 1, 10, 10, 9, 9, 0.1],}
 CPU_ = {"slow": [2], "fast": [1.5]}
@@ -14,6 +13,13 @@ directions = {"west": [1, 1.57], "east": [1, -1.57],
               "south": [0, -1.57], "north": [0, 1.57]}
 END = False
 column = RESOLUTION[RES][5]-1
+prolog = Prolog()
+prolog.consult("prolog/state_machine.pl")
+prolog.assertz("obs(0)")
+prolog.assertz("bottom_corner("+str(RESOLUTION[RES][4]-1)+")")
+prolog.assertz("column("+str(column)+")")
+
+
 def update_map(one_id):
     for row_id, row in enumerate(world2):
         for col_id, col in enumerate(row):
@@ -85,6 +91,8 @@ def find_closest(pos, last_pos, b1, b2, direction):
         world2[min_id[0]][min_id[1]]=1
 
     if b1 or b2:
+        prolog.retractall("obs(_)")
+        prolog.assertz("obs(1)")
         if direction == "west":
             x = 0
             y = -1
@@ -99,6 +107,9 @@ def find_closest(pos, last_pos, b1, b2, direction):
             y = 0
 
         world2[min_id[0]+x][column] = 2
+    else:
+        prolog.retractall("obs(_)")
+        prolog.assertz("obs(0)")
 
     if color == 84:
         world2[min_id[0]][min_id[1]] = 3
@@ -113,7 +124,7 @@ def pygame_loop(last_pos, direction = ""):
     pos = r.position()
     min_id = find_closest(pos, last_pos, b1, b2, direction)
     update_map(min_id)
-    return min_id, (b1 or b2)
+    return min_id#, (b1 or b2)
 
 
 def line_follower():
@@ -160,8 +171,13 @@ def wander_through(last_pos):
     direction = "north"
     while not END:
         color = r.color()
-        pos, obs = pygame_loop(last_pos, direction)
-        if obs:
+        pos = pygame_loop(last_pos, direction)
+        prolog.retractall("position(_)")
+        prolog.assertz("position("+str(pos)+")")
+        state = list(prolog.query("stateMachine(X)"))[0]["X"]
+        print(state)
+        print(list(prolog.query("obs(X)")))
+        if state == "state1":
             if direction == "south":
                 r.move_backward(2)
                 time.sleep(0.5)
@@ -170,18 +186,22 @@ def wander_through(last_pos):
                 r.move_forward(3)
                 time.sleep(CPU_[CPU][0])
                 column += 1
+                prolog.retractall("column(_)")
+                prolog.assertz("column("+str(column)+")")
                 r.rotate_right(2.25)
                 time.sleep(CPU_[CPU][0])
                 r.move_forward(6)
                 time.sleep(CPU_[CPU][0])
                 while world2[pos[0]][pos[1]-1] == 2:
                     r.move_forward(1)
-                    pos, obs = pygame_loop(pos, direction)
+                    pos = pygame_loop(pos, direction)
                 r.move_forward(2)
                 time.sleep(CPU_[CPU][0])
                 r.rotate_right(2)
                 time.sleep(CPU_[CPU][0])
                 column -= 1
+                prolog.retractall("column(_)")
+                prolog.assertz("column("+str(column)+")")
                 r.move_forward(2)
                 time.sleep(CPU_[CPU][0])
                 r.rotate_left(1.5)
@@ -194,23 +214,27 @@ def wander_through(last_pos):
                 r.move_forward(3)
                 time.sleep(CPU_[CPU][0])
                 column += 1
+                prolog.retractall("column(_)")
+                prolog.assertz("column("+str(column)+")")
                 r.rotate_left(2.25)
                 time.sleep(CPU_[CPU][0])
                 r.move_forward(6)
                 time.sleep(CPU_[CPU][0])
                 while world2[pos[0]][pos[1] - 1] == 2:
                     r.move_forward(1)
-                    pos, obs = pygame_loop(pos, direction)
+                    pos = pygame_loop(pos, direction)
                 r.move_forward(2)
                 time.sleep(CPU_[CPU][0])
                 r.rotate_left(2)
                 time.sleep(CPU_[CPU][0])
                 column -= 1
+                prolog.retractall("column(_)")
+                prolog.assertz("column("+str(column)+")")
                 r.move_forward(2)
                 time.sleep(CPU_[CPU][0])
                 r.rotate_right(1.5)
                 time.sleep(CPU_[CPU][0])
-        elif pos[0] == 0:
+        elif state == "state2":
             r.rotate_left(2)
             time.sleep(CPU_[CPU][0])
             r.move_forward(3)
@@ -221,7 +245,9 @@ def wander_through(last_pos):
             r.move_forward(1)
             time.sleep(0.25)
             column -= 1
-        elif pos[0] == RESOLUTION[RES][4]-1:
+            prolog.retractall("column(_)")
+            prolog.assertz("column(" + str(column) + ")")
+        elif state == "state3":
             r.rotate_right(2)
             time.sleep(CPU_[CPU][0])
             r.move_forward(3)
@@ -232,18 +258,20 @@ def wander_through(last_pos):
             r.move_forward(1)
             time.sleep(0.25)
             column -= 1
-        elif pos[1] > column:
+            prolog.retractall("column(_)")
+            prolog.assertz("column(" + str(column) + ")")
+        elif state == "state4":
             if direction == "north":
-                r.rotate_left(0.15)
+                r.rotate_left(0.25)
             else:
-                r.rotate_right(0.15)
-        elif pos[1] < column:
+                r.rotate_right(0.25)
+        elif state == "state5":
             if direction == "north":
-                r.rotate_right(0.15)
+                r.rotate_right(0.25)
             else:
-                r.rotate_left(0.15)
-        else:
-            r.move_forward(5)
+                r.rotate_left(0.25)
+        elif state == "state6":
+            r.move_forward(4)
         last_pos = pos
 
 
@@ -292,7 +320,7 @@ with VRep.connect("127.0.0.1", 19997) as api:
     if not manual:
         r.rotate_left()
     while not END:
-        last_pos, _ = pygame_loop(last_pos)
+        last_pos = pygame_loop(last_pos)
         if not manual:
             if follow:
                 color = r.color()
