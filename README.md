@@ -93,5 +93,5 @@ Results of the project can be seen in videos below.
 ![VREP](videos/vrep.gif)
 
   
-**Real robot**
+**Real robot**  
 ![REAL](videos/real.gif)
