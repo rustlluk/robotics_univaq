@@ -1,6 +1,6 @@
 import numpy as np
 from pyswip import Prolog
-from lego_robot import LegoRobot
+from robots.lego_robot import LegoRobot
 
 RESOLUTION = {"1":[20, 18, 28, 1, 20, 30, 19, 29, 0.1], "0.5":[10, 37, 57, 2, 40, 60, 39, 59, 0.05], "12": [20, 8, 8, 1, 10, 10, 9, 9, 0.1],}
 CPU_ = {"slow": [2], "fast": [1.5]}

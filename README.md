@@ -23,12 +23,13 @@ Files are structured in folders, corresponding to their purpose.
 
 **Folders:**
 
-  - [AIs](AIs) - includes files with AI of the robots,
-    [one file](AIs/main_vrep.py) for the simulated robot and
-    [second file](AIs/main_robot.py) for the real lego robot.
+  - Main folder - includes files with AI of the robots,
+    one file ([main_vrep.py](AIs/main_vrep.py)) for the simulated robot and
+    second file ([main_robot.py](AIs/main_robot.py)) for the real lego robot.
   - [robots](robots) - includes class for the robot, again
-    [one](robots/lego_robot_vrep.py) for the simulated robot and [second
-    one](robots/lego_robot.py) for the real robot
+    one ([lego_robot_vrep.py](robots/lego_robot_vrep.py)) for the
+    simulated robot and second one ([lego_robot.py](robots/lego_robot.py))
+    for the real robot
   - [prolog](prolog) - includes [prolog .pl](prolog/state_machine.pl)
     file, which includes the logic for robot behaviour in the field.
   - [vrep](vrep) - includes VREP [scene](vrep/scene.ttt) and
@@ -37,8 +38,9 @@ Files are structured in folders, corresponding to their purpose.
     From [Odometrium](https://github.com/sterereo/odometrium).
   - [pdf](pdf) - includes [PDF assignment](pdf/robotics.pdf).
   - [image](image) - includes the images for readme and PDF.
-  - [videos](videos) - includes the video of [simulated run](videos/vrep.mp4)
-    and video of the real run.
+  - [videos](videos) - includes the video of simulated run ([vrep.mp4](videos/vrep.mp4))
+    and video of the real run ([real.mp4](videos/real.mp4)). The folder includes also the GIF version
+    of videos.
 
 # Robots
 
@@ -89,3 +91,7 @@ Results of the project can be seen in videos below.
 
 **Simulated robot**  
 ![VREP](videos/vrep.gif)
+
+  
+**Real robot**
+![REAL](videos/real.gif)

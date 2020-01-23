@@ -1,4 +1,4 @@
-from lego_robot_vrep import LegoRobot
+from robots.lego_robot_vrep import LegoRobot
 from pyvrep import VRep
 import time
 import pygame
