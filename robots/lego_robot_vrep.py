@@ -3,7 +3,9 @@ import time
 
 
 class LegoRobot:
-
+    """
+    Main class for the lego robot in VREP simulator.
+    """
     def __init__(self, api: VRep):
         self._api = api
         self._left_motor = api.joint.with_velocity_control("left_motor")

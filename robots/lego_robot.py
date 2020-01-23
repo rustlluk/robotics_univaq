@@ -5,6 +5,9 @@ from odometrium.main import Odometrium
 
 
 class LegoRobot:
+    """
+    Main class for real lego robot, using the Odometrium class.
+    """
     def __init__(self):
         self.color_sensor = ColorSensor(INPUT_1)
         self.touch_sensor1 = TouchSensor(INPUT_2)
