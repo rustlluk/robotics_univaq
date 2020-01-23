@@ -4,6 +4,7 @@ import time
 import pygame
 import numpy as np
 from pyswip import Prolog
+import threading
 
 RESOLUTION = {"1":[20, 18, 28, 1, 20, 30, 19, 29, 0.1], "0.5":[10, 37, 57, 2, 40, 60, 39, 59, 0.05], "12": [20, 8, 8, 1, 10, 10, 9, 9, 0.1],}
 CPU_ = {"slow": [2], "fast": [1.5]}
@@ -12,6 +13,8 @@ CPU = "slow"
 directions = {"west": [1, 1.57], "east": [1, -1.57],
               "south": [0, -1.57], "north": [0, 1.57]}
 END = False
+START = False
+CHANGE = False
 column = RESOLUTION[RES][5]-1
 prolog = Prolog()
 prolog.consult("prolog/state_machine.pl")
@@ -118,7 +121,39 @@ def find_closest(pos, last_pos, b1, b2, direction):
     return min_id
 
 
+def button_fce():
+    global text_, CHANGE
+    while not END:
+        for event in pygame.event.get():
+            pass
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        if 700 < mouse[0] < 850 and 200 < mouse[1] < 350:
+            if click[0] == 1:
+                if text_ == "PAUSE":
+                    #api.simulation.pause()
+                    CHANGE = True
+                    text_ = "START"
+                else:
+                    #api.simulation.start()
+                    text_ = "PAUSE"
+                    CHANGE = True
+                pygame.draw.rect(screen, (0, 0, 0), (700, 200, 150, 100))
+                font = pygame.font.Font('freesansbold.ttf', 32)
+                text = font.render(text_, True, (255, 255, 255))
+                textRect = text.get_rect()
+                textRect.center = (775, 250)
+                screen.blit(text, textRect)
+
+
 def pygame_loop(last_pos, direction = ""):
+    global CHANGE
+    if CHANGE and text_ == "START":
+        api.simulation.pause()
+        CHANGE = False
+    elif CHANGE and text_ == "PAUSE":
+        api.simulation.start()
+        CHANGE = False
     b1 = r.touch_right()
     b2 = r.touch_left()
     pos = r.position()
@@ -274,9 +309,30 @@ def wander_through(last_pos):
 
 
 pygame.init()
-screen = pygame.display.set_mode((600, 400))
+screen = pygame.display.set_mode((900, 400))
 screen.fill((255, 255, 255))
 pygame.display.update()
+text_="START"
+while not START:
+    for event in pygame.event.get():
+        pass
+    mouse = pygame.mouse.get_pos()
+    click = pygame.mouse.get_pressed()
+    if 700 < mouse[0] < 850 and 200 < mouse[1] < 350:
+        if click[0] == 1:
+            START = True
+            text_ = "PAUSE"
+    pygame.draw.rect(screen, (0, 0, 0), (700, 200, 150, 100))
+    font = pygame.font.Font('freesansbold.ttf', 32)
+    text = font.render(text_, True, (255, 255, 255))
+    textRect = text.get_rect()
+    textRect.center = (775, 250)
+    screen.blit(text, textRect)
+    pygame.display.update()
+time.sleep(1)
+t1 = threading.Thread(target=button_fce)
+t1.start()
+
 world = []
 for row in range(RESOLUTION[RES][4]):
     world.append([])
@@ -318,6 +374,7 @@ with VRep.connect("127.0.0.1", 19997) as api:
     if not manual:
         r.rotate_left()
     while not END:
+        print(text_)
         last_pos = pygame_loop(last_pos)
         if not manual:
             if follow:
@@ -344,6 +401,7 @@ with VRep.connect("127.0.0.1", 19997) as api:
         else:
             manual_control()
     r.stop()
+    t1.join()
     input()
     #api.simulation.pause()
 

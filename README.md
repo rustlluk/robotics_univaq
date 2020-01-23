@@ -1,4 +1,4 @@
-**Robotics project for ISR lab at UNIVAQ Italy.**  
+# Robotics project for ISR lab at UNIVAQ Italy
 
 Content:
 

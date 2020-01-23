@@ -1,25 +1,25 @@
 from ev3dev2.sensor.lego import ColorSensor
 from ev3dev2.sensor.lego import TouchSensor
-from ev3dev2.sensor import INPUT_1, INPUT_2
+from ev3dev2.sensor import INPUT_1, INPUT_2, INPUT_3
 from odometrium.main import Odometrium
 
 
 class LegoRobot:
     def __init__(self):
-        self.color_sensor = ColorSensor()
-        self.touch_sensor1 = TouchSensor(INPUT_1)
-        self.touch_sensor2 = TouchSensor(INPUT_2)
-        self.odo = Odometrium(left='B', right='C', wheel_diameter=5.5, wheel_distance=12, count_per_rot_left=None,
+        self.color_sensor = ColorSensor(INPUT_1)
+        self.touch_sensor1 = TouchSensor(INPUT_2)
+        self.touch_sensor2 = TouchSensor(INPUT_3)
+        self.odo = Odometrium(left='B', right='C', wheel_diameter=0.055, wheel_distance=0.105, count_per_rot_left=None,
                               count_per_rot_right=None, debug=False, curve_adjustment=1)
 
     def move_forward(self, speed, time):
         self.odo.move(speed, speed, time)
 
     def rotate_right(self, speed, time):
-        self.odo.move(speed, -speed, time)
+        self.odo.move(-speed, speed, time)
 
     def rotate_left(self, speed, time):
-        self.odo.move(-speed, speed, time)
+        self.odo.move(speed, -speed, time)
 
     def move_backward(self, speed, time):
         self.odo.move(-speed, -speed, time)

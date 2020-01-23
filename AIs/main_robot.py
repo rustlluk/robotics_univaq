@@ -126,18 +126,18 @@ def pygame_loop(last_pos, direction = ""):
 
 
 def line_follower():
-    if color == 0:
-        r.rotate_right(50, 0.1)
-    elif color == -1:
-        r.rotate_left(50, 0.1)
+    if 4 < color < 9:  # black
+        r.rotate_right(50, 0.25)
+    elif 75 < color < 84:  # white
+        r.rotate_left(50, 0.25)
     else:
         if (last_pos[1] <= RESOLUTION[RES][3] + 1 and (
                 last_pos[0] >= RESOLUTION[RES][1] - 1 or last_pos[0] <= RESOLUTION[RES][3] + 1)) or (
                 last_pos[1] >= RESOLUTION[RES][2] - 1 and (
                 last_pos[0] >= RESOLUTION[RES][1] - 1 or last_pos[0] <= RESOLUTION[RES][3] + 1)):
-            r.move_forward(20, 0.1)
+            r.move_forward(20, 0.5)
         else:
-            r.move_forward(50, 0.1)
+            r.move_forward(50, 0.25)
 
 
 def manual_control():
@@ -154,10 +154,10 @@ def manual_control():
 
 
 def get_to_position():
-    r.rotate_right(50, 0.5)
-    while r.color() == -1:
-        r.rotate_right(10, 0.05)
-    r.rotate_left(50, 0.5)
+    r.rotate_right(50, 2.5)
+    while 77 < r.color() < 84:
+        r.rotate_right(10, 0.25)
+    r.rotate_left(50, 2)
     r.stop()
 
 
@@ -172,73 +172,73 @@ def wander_through(last_pos):
         state = list(prolog.query("stateMachine(X)"))[0]["X"]
         if state == "state1":
             if direction == "south":
-                r.move_backward(50, 0.25)
-                r.rotate_left(50, 0.5)
-                r.move_forward(50, 1)
+                r.move_backward(50, 1)
+                r.rotate_left(50, 3.1)
+                r.move_forward(50, 3.1)
                 column += 1
                 prolog.retractall("column(_)")
                 prolog.assertz("column("+str(column)+")")
-                r.rotate_right(50, 0.5)
-                r.move_forward(50, 1)
+                r.rotate_right(50, 3.1)
+                r.move_forward(50, 6)
                 while world2[pos[0]][pos[1]-1] == 2:
-                    r.move_forward(50, 0.1)
+                    r.move_forward(50, 0.25)
                     pos = pygame_loop(pos, direction)
-                r.move_forward(50, 1)
-                r.rotate_right(50, 0.5)
+                r.move_forward(50, 1.5)
+                r.rotate_right(50, 3.1)
                 column -= 1
                 prolog.retractall("column(_)")
                 prolog.assertz("column("+str(column)+")")
-                r.move_forward(50, 1)
-                r.rotate_left(50, 0.5)
+                r.move_forward(50, 3.1)
+                r.rotate_left(50, 3.1)
             elif direction == "north":
-                r.move_backward(50, 0.25)
-                r.rotate_right(50, 0.5)
-                r.move_forward(50, 1)
+                r.move_backward(50, 1)
+                r.rotate_right(50, 3.1)
+                r.move_forward(50, 3.1)
                 column += 1
                 prolog.retractall("column(_)")
                 prolog.assertz("column("+str(column)+")")
-                r.rotate_left(50, 0.5)
-                r.move_forward(50, 1)
+                r.rotate_left(50, 3.1)
+                r.move_forward(50, 6)
                 while world2[pos[0]][pos[1] - 1] == 2:
-                    r.move_forward(50, 0.1)
+                    r.move_forward(50, 0.25)
                     pos = pygame_loop(pos, direction)
-                r.move_forward(50, 1)
-                r.rotate_left(50, 0.5)
+                r.move_forward(50, 1.5)
+                r.rotate_left(50, 3.1)
                 column -= 1
                 prolog.retractall("column(_)")
                 prolog.assertz("column("+str(column)+")")
-                r.move_forward(50, 1)
-                r.rotate_right(50, 0.5)
+                r.move_forward(50, 3.1)
+                r.rotate_right(50, 3.1)
         elif state == "state2":
-            r.rotate_left(50, 0.5)
-            r.move_forward(50, 0.5)
-            r.rotate_left(50, 0.5)
+            r.rotate_left(50, 3.1)
+            r.move_forward(50, 3.1)
+            r.rotate_left(50, 3.1)
             direction = "south"
-            r.move_forward(50, 0.5)
+            r.move_forward(50, 3.1)
             column -= 1
             prolog.retractall("column(_)")
             prolog.assertz("column(" + str(column) + ")")
         elif state == "state3":
-            r.rotate_right(50, 0.5)
-            r.move_forward(50, 0.5)
-            r.rotate_right(50, 0.5)
+            r.rotate_right(50, 3.1)
+            r.move_forward(50, 3.1)
+            r.rotate_right(50, 3.1)
             direction = "north"
-            r.move_forward(50, 0.5)
+            r.move_forward(50, 3.1)
             column -= 1
             prolog.retractall("column(_)")
             prolog.assertz("column(" + str(column) + ")")
         elif state == "state4":
             if direction == "north":
-                r.rotate_left(10, 0.05)
+                r.rotate_left(50, 0.25)
             else:
-                r.rotate_right(10, 0.05)
+                r.rotate_right(50, 0.25)
         elif state == "state5":
             if direction == "north":
-                r.rotate_right(10, 0.05)
+                r.rotate_right(50, 0.25)
             else:
-                r.rotate_left(10, 0.05)
+                r.rotate_left(50, 0.25)
         elif state == "state6":
-            r.move_forward(50, 0.1)
+            r.move_forward(50, 0.25)
         last_pos = pos
 
 
@@ -250,7 +250,6 @@ for row in range(RESOLUTION[RES][4]):
 world2 = np.zeros((RESOLUTION[RES][4], RESOLUTION[RES][5]))
 
 r = LegoRobot()
-
 world[RESOLUTION[RES][6]][RESOLUTION[RES][7]][0] = 0
 world[RESOLUTION[RES][6]][RESOLUTION[RES][7]][1] = 0
 
