@@ -7,6 +7,7 @@ Content:
 - [Robots](#robots)
 - [AI](#ai)
 - [Prolog](#prolog)
+- [Results](#results)
 
 # Description
 
@@ -36,7 +37,7 @@ Files are structured in folders, corresponding to their purpose.
     From [Odometrium](https://github.com/sterereo/odometrium).
   - [pdf](pdf) - includes [PDF assignment](pdf/robotics.pdf).
   - [image](image) - includes the images for readme and PDF.
-  - [videos](videos) - includes the video of [simulated run](videos/out.mp4)
+  - [videos](videos) - includes the video of [simulated run](videos/vrep.mp4)
     and video of the real run.
 
 # Robots
@@ -81,3 +82,10 @@ The main Python program is communicating with prolog interpreter with
 the use of [PySwip](https://github.com/yuce/pyswip) bridge. The position
 of the robot is dynamically asserted into prolog knowledge base and
 prolog is returning the proper state for state machine.
+
+# Results
+
+Results of the project can be seen in videos below.
+
+**Simulated robot**  
+![VREP](videos/vrep.gif)
