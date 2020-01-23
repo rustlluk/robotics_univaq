@@ -14,7 +14,7 @@ This is project made as final project for ISR lab. The task of the robot
 is to navigate through field, detect obstacle, map the field and find a
 red spot somewhere in the field. Example of the field can be seen in
 Figure below and the whole assigment is described in [Assigment PDF](pdf/robotics.pdf).  
-![Example of the field for robot](image/robotics_1rob.jpg)
+![Example of the field for robot](image/robotics.jpg)
 
 # File structure
 
