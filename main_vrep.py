@@ -4,7 +4,6 @@ import time
 import pygame
 import numpy as np
 from pyswip import Prolog
-import threading
 
 # Resolution is used for easier change of the map
 RESOLUTION = {"12": [20, 8, 8, 1, 10, 10, 9, 9, 0.1],}
@@ -16,8 +15,6 @@ CPU = "slow"
 
 # Global variables
 END = False  # end of the simulation
-START = False  # start of the simulation
-CHANGE = False  # if to change the GUI
 column = RESOLUTION[RES][5]-1  # initial setting of the column where the robot should move
 
 # Prolog connection and insertion of the dynamical terms
@@ -145,35 +142,6 @@ def find_closest(pos, last_pos, b1, b2, direction):
     return min_id
 
 
-def button_fce():
-    """
-    Function running in second thread for GUI
-    :return:
-    """
-    global text_, CHANGE
-    while not END:
-        for event in pygame.event.get():
-            pass
-        mouse = pygame.mouse.get_pos()
-        click = pygame.mouse.get_pressed()
-        if 700 < mouse[0] < 850 and 200 < mouse[1] < 350:  # If mouse over button and clicked change to START/PAUSE
-            if click[0] == 1:
-                if text_ == "PAUSE":
-                    #api.simulation.pause()
-                    CHANGE = True
-                    text_ = "START"
-                else:
-                    #api.simulation.start()
-                    text_ = "PAUSE"
-                    CHANGE = True
-                pygame.draw.rect(screen, (0, 0, 0), (700, 200, 150, 100))
-                font = pygame.font.Font('freesansbold.ttf', 32)
-                text = font.render(text_, True, (255, 255, 255))
-                textRect = text.get_rect()
-                textRect.center = (775, 250)
-                screen.blit(text, textRect)
-
-
 def pygame_loop(last_pos, direction = ""):
     """
     Loop for GUI
@@ -181,14 +149,6 @@ def pygame_loop(last_pos, direction = ""):
     :param direction: string, direction
     :return: position of the robot, array [x,y], in indexes
     """
-    global CHANGE
-    #  Pause/start simulation
-    if CHANGE and text_ == "START":
-        api.simulation.pause()
-        CHANGE = False
-    elif CHANGE and text_ == "PAUSE":
-        api.simulation.start()
-        CHANGE = False
     b1 = r.touch_right()  # right touch
     b2 = r.touch_left()  # left touch
     pos = r.position()  # position
@@ -245,7 +205,7 @@ def get_to_position():
     time.sleep(1)
     while r.color() == -1:  # drive until right black is reached
         r.rotate_right(1)
-    r.rotate_left(2)  # get straight up
+    r.rotate_left(CPU_[CPU][0])  # get straight up
     time.sleep(0.5)
     r.stop()
 
@@ -368,31 +328,6 @@ pygame.init()
 screen = pygame.display.set_mode((900, 400))
 screen.fill((255, 255, 255))
 pygame.display.update()
-text_="START"
-
-# Wait for click on start
-while not START:
-    for event in pygame.event.get():
-        pass
-    mouse = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
-    if 700 < mouse[0] < 850 and 200 < mouse[1] < 350:
-        if click[0] == 1:
-            START = True
-            text_ = "PAUSE"
-    pygame.draw.rect(screen, (0, 0, 0), (700, 200, 150, 100))
-    font = pygame.font.Font('freesansbold.ttf', 32)
-    text = font.render(text_, True, (255, 255, 255))
-    textRect = text.get_rect()
-    textRect.center = (775, 250)
-    screen.blit(text, textRect)
-    pygame.display.update()
-
-# RUN thread with GUI
-time.sleep(1)
-t1 = threading.Thread(target=button_fce)
-t1.start()
-
 
 #Prepare world
 world = []  # position of the robot
@@ -438,7 +373,7 @@ with VRep.connect("127.0.0.1", 19997) as api:
 
     r.stop()
     if not manual:
-        r.rotate_left()  # to hit black line
+        r.rotate_left(1)  # to hit black line
     while not END:
         last_pos = pygame_loop(last_pos)  # GUI update
         if not manual:

@@ -3,6 +3,8 @@
 Content:
 
 - [Description](#description)
+- [Requirements](#requirements)
+- [Installation and run](#installation)
 - [File structure](#file-structure)
 - [Robots](#robots)
 - [AI](#ai)
@@ -16,6 +18,36 @@ is to navigate through field, detect obstacle, map the field and find a
 red spot somewhere in the field. Example of the field can be seen in
 Figure below and the whole assigment is described in [Assigment PDF](pdf/robotics.pdf).  
 ![Example of the field for robot](image/robotics.jpg)
+
+# Requirements
+
+- Python3.5+ and basic libraries + NumPy, PyGame
+- [VREP simulator](http://www.coppeliarobotics.com/)
+- [VREP api](https://github.com/rustlluk/vrep-api-python) - If you have
+  already installed this API from AAAI-DISIM-UnivAQ fork, you have to
+  download it again, as we added support for touch button.
+- [SWI Prolog interpreter](https://www.swi-prolog.org/)
+- [PySwip](https://github.com/yuce/pyswip)
+- Lego EV3 robot with Debian linux from [EV3DEV](https://www.ev3dev.org/)
+- [Odometrium](https://github.com/sterereo/odometrium)
+
+# Installation
+
+Just install all requirements from [Requirements](#requirements) section.
+
+For simulated robot robot:
+- run VREP simulator
+- load [scene.ttt](vrep/scene.ttt)
+- run [main_vrep.py](main_vrep.py)
+  - windows with PyGame should appear and robot should start to move
+
+For real robot:
+- Connect to the robot with tutorials at [EV3Dev](https://www.ev3dev.org/)
+- Upload files to robot
+- Create a field similar to image in [Description](#description)
+- Change field size in [main_robot.py](main_robot.py)
+- run [main_robot.py](main_robot.py)
+
 
 # File structure
 
@@ -87,11 +119,32 @@ prolog is returning the proper state for state machine.
 
 # Results
 
-Results of the project can be seen in videos below.
+More detailed results are described in [report](pdf/report.pdf) pdf file.
+Here will be described results just in short points.
 
-**Simulated robot**  
+**Simulated robot**
+
+Video result of simulated robot can be seen on video below.
+
 ![VREP](videos/vrep.gif)
 
-  
-**Real robot**  
+- the simulation works well and meets condition of the assignment
+- the only problem is that simulation is really dependent on CPU
+  processing power
+  - added CPU constant to easy adjustments
+
+**Real robot**
+
+The video of real robot can be seen below.
+
 ![REAL](videos/real.gif)
+
+With the real robot more problems occurred:
+
+- We were not able to install Prolog interpreter
+  - AI was rewritten to Python for robot
+- The odometry on robot is really inaccurate
+  - robot is not as accurate as the simulated one
+- Color sensor returned strange values sometimes
+  - we put it closer to the ground
+- Our created field was not really created perfectly
