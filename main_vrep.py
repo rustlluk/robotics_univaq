@@ -8,7 +8,7 @@ from pyswip import Prolog
 # Resolution is used for easier change of the map
 RESOLUTION = {"12": [20, 8, 8, 1, 10, 10, 9, 9, 0.1],}
 # CPU parameters is used to help to erase problems with changing speed of simulation
-CPU_ = {"slow": [2], "fast": [1.5]}
+CPU_ = {"slow": [2], "fast": [1.4]}
 
 RES = "12"
 CPU = "slow"
@@ -201,12 +201,10 @@ def get_to_position():
     :return:
     """
 
-    r.rotate_right(1)  # get from black
-    time.sleep(1)
+    r.rotate_right(1, 1)  # get from black
     while r.color() == -1:  # drive until right black is reached
         r.rotate_right(1)
-    r.rotate_left(CPU_[CPU][0])  # get straight up
-    time.sleep(0.5)
+    r.rotate_left(CPU_[CPU][0], 0.5)  # get straight up
     r.stop()
 
 
@@ -228,84 +226,58 @@ def wander_through(last_pos):
         state = list(prolog.query("stateMachine(X)"))[0]["X"]
         if state == "state1":  # Obstacle
             if direction == "south":  # going south => back, left, forward, right, forward, right
-                r.move_backward(2)
-                time.sleep(0.5)
-                r.rotate_left(2.25)
-                time.sleep(CPU_[CPU][0])
-                r.move_forward(3)
-                time.sleep(CPU_[CPU][0])
+                r.move_backward(2, 0.5)
+                r.rotate_left(2.25, CPU_[CPU][0])
+                r.move_forward(3, CPU_[CPU][0])
                 column += 1
                 prolog.retractall("column(_)")
                 prolog.assertz("column("+str(column)+")")
-                r.rotate_right(2)
-                time.sleep(CPU_[CPU][0])
-                r.move_forward(6)
-                time.sleep(CPU_[CPU][0])
+                r.rotate_right(2, CPU_[CPU][0])
+                r.move_forward(6, CPU_[CPU][0])
                 while world2[pos[0]][pos[1]-1] == 2:
                     r.move_forward(1)
                     pos = pygame_loop(pos, direction)
-                r.move_forward(2)
-                time.sleep(CPU_[CPU][0])
-                r.rotate_right(2)
-                time.sleep(CPU_[CPU][0])
+                r.move_forward(2, CPU_[CPU][0])
+                r.rotate_right(2, CPU_[CPU][0])
                 column -= 1
                 prolog.retractall("column(_)")
                 prolog.assertz("column("+str(column)+")")
-                r.move_forward(2)
-                time.sleep(CPU_[CPU][0])
-                r.rotate_left(1.5)
-                time.sleep(CPU_[CPU][0])
+                r.move_forward(2, CPU_[CPU][0])
+                r.rotate_left(1.5, CPU_[CPU][0])
             elif direction == "north":  # going north => back, right, forward, left, forward, left
-                r.move_backward(2)
-                time.sleep(0.5)
-                r.rotate_right(2.25)
-                time.sleep(CPU_[CPU][0])
-                r.move_forward(3)
-                time.sleep(CPU_[CPU][0])
+                r.move_backward(2, 0.5)
+                r.rotate_right(2.25, CPU_[CPU][0])
+                r.move_forward(3, CPU_[CPU][0])
                 column += 1
                 prolog.retractall("column(_)")
                 prolog.assertz("column("+str(column)+")")
-                r.rotate_left(2.25)
-                time.sleep(CPU_[CPU][0])
-                r.move_forward(6)
-                time.sleep(CPU_[CPU][0])
+                r.rotate_left(2.25, CPU_[CPU][0])
+                r.move_forward(6, CPU_[CPU][0])
                 while world2[pos[0]][pos[1] - 1] == 2:
                     r.move_forward(1)
                     pos = pygame_loop(pos, direction)
-                r.move_forward(2)
-                time.sleep(CPU_[CPU][0])
-                r.rotate_left(2)
-                time.sleep(CPU_[CPU][0])
+                r.move_forward(2, CPU_[CPU][0])
+                r.rotate_left(2, CPU_[CPU][0])
                 column -= 1
                 prolog.retractall("column(_)")
                 prolog.assertz("column("+str(column)+")")
-                r.move_forward(2)
-                time.sleep(CPU_[CPU][0])
-                r.rotate_right(1.5)
-                time.sleep(CPU_[CPU][0])
+                r.move_forward(2, CPU_[CPU][0])
+                r.rotate_right(1.5, CPU_[CPU][0])
         elif state == "state2":  # Upper of the map => left, forward, left
-            r.rotate_left(2)
-            time.sleep(CPU_[CPU][0])
-            r.move_forward(2)
-            time.sleep(2)
-            r.rotate_left(2)
-            time.sleep(CPU_[CPU][0])
+            r.rotate_left(2, CPU_[CPU][0])
+            r.move_forward(2, CPU_[CPU][0])
+            r.rotate_left(2, CPU_[CPU][0])
             direction = "south"
-            r.move_forward(1)
-            time.sleep(0.25)
+            r.move_forward(1, 0.25)
             column -= 1
             prolog.retractall("column(_)")
             prolog.assertz("column(" + str(column) + ")")
         elif state == "state3":  # Bottom of the map  => right, forward, right
-            r.rotate_right(2)
-            time.sleep(CPU_[CPU][0])
-            r.move_forward(2)
-            time.sleep(2)
-            r.rotate_right(2)
-            time.sleep(CPU_[CPU][0])
+            r.rotate_right(2, CPU_[CPU][0])
+            r.move_forward(2, CPU_[CPU][0])
+            r.rotate_right(2, CPU_[CPU][0])
             direction = "north"
-            r.move_forward(1)
-            time.sleep(0.25)
+            r.move_forward(1, 0.25)
             column -= 1
             prolog.retractall("column(_)")
             prolog.assertz("column(" + str(column) + ")")
@@ -387,8 +359,7 @@ with VRep.connect("127.0.0.1", 19997) as api:
                     wander = True
             elif wander:  # End of following, start wandering
                 #get_to_position()
-                r.move_forward(5)
-                time.sleep(0.5)
+                r.move_forward(5, 0.5)
                 wander_through(last_pos)  # Wander
                 wander = False  #End wander
                 break
@@ -401,7 +372,6 @@ with VRep.connect("127.0.0.1", 19997) as api:
         else:
             manual_control()
     r.stop()  # Stop robot
-    t1.join()  # Wait for GUI
     input()  # Wait for user input to stop going
     #api.simulation.pause()
 

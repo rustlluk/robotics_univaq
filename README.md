@@ -16,7 +16,10 @@ Content:
 This is project made as final project for ISR lab. The task of the robot
 is to navigate through field, detect obstacle, map the field and find a
 red spot somewhere in the field. Example of the field can be seen in
-Figure below and the whole assigment is described in [Assigment PDF](pdf/robotics.pdf).  
+Figure below and the whole assignment is described in [Assigment PDF](pdf/robotics.pdf).
+
+The in detail final description and results can be found in [report.pdf](pdf/report.pdf).
+
 ![Example of the field for robot](image/robotics.jpg)
 
 # Requirements
@@ -76,11 +79,9 @@ Files are structured in folders, corresponding to their purpose.
 
 # Robots
 
-Both of the robots have the same possible commands. The only difference
-is that real robot allows to insert time of the command and the simulated
-robot does not.
+Both of the robots have the same possible commands.
 
-**List of commands (in version for real robot):**
+**List of commands:**
 
   - move_forward(speed, time) - moves robot forward.
   - move_backward(speed, time) - moves robot backward.
@@ -156,3 +157,4 @@ In the future, we could focus on these problems:
 - Get test with motors and odometry to get average error and invent some
   way how to face this problem
 - Create a better field for the robot, to better test its capabilities
+- Find another way how to get data from robot to computer

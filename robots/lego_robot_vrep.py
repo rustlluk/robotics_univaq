@@ -16,17 +16,21 @@ class LegoRobot:
         self._touch_sensor_left = api.sensor.touch("touch_button_left")
         self._tracer = api.sensor.position("LineTracer")
 
-    def rotate_right(self, speed=2.0):
+    def rotate_right(self, speed=2.0, wait=0):
         self._set_two_motor(speed, -speed)
+        time.sleep(wait)
    
-    def rotate_left(self, speed=2.0):
+    def rotate_left(self, speed=2.0, wait=0):
         self._set_two_motor(-speed, speed)
+        time.sleep(wait)
 
-    def move_forward(self, speed=2.0):
+    def move_forward(self, speed=2.0, wait=0):
         self._set_two_motor(speed, speed)
+        time.sleep(wait)
 
-    def move_backward(self, speed=2.0):
+    def move_backward(self, speed=2.0, wait=0):
         self._set_two_motor(-speed, -speed)
+        time.sleep(wait)
 
     def _set_two_motor(self, left: float, right: float):
         self._left_motor.set_target_velocity(left)
