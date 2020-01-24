@@ -148,3 +148,11 @@ With the real robot more problems occurred:
 - Color sensor returned strange values sometimes
   - we put it closer to the ground
 - Our created field was not really created perfectly
+
+# Future work
+
+In the future, we could focus on these problems:
+- Install Prolog interpreter on the robot
+- Get test with motors and odometry to get average error and invent some
+  way how to face this problem
+- Create a better field for the robot, to better test its capabilities
