@@ -59,8 +59,8 @@ Files are structured in folders, corresponding to their purpose.
 **Folders:**
 
   - Main folder - includes files with AI of the robots,
-    one file ([main_vrep.py](AIs/main_vrep.py)) for the simulated robot and
-    second file ([main_robot.py](AIs/main_robot.py)) for the real lego robot.
+    one file ([main_vrep.py](main_vrep.py)) for the simulated robot and
+    second file ([main_robot.py](main_robot.py)) for the real lego robot.
   - [robots](robots) - includes class for the robot, again
     one ([lego_robot_vrep.py](robots/lego_robot_vrep.py)) for the
     simulated robot and second one ([lego_robot.py](robots/lego_robot.py))
