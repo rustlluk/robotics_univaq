@@ -115,7 +115,7 @@ Prolog is used for the main state machine during robots wandering through
 the map. The behaviour is described in [this file](prolog/state_machine.pl).  
 The main Python program is communicating with prolog interpreter with
 the use of [PySwip](https://github.com/yuce/pyswip) bridge. The position
-of the robot is dynamically asserted into prolog knowledge base and
+of the robot and all other changeable variables are dynamically asserted into prolog knowledge base and
 prolog is returning the proper state for the state machine.
 
 # Results
