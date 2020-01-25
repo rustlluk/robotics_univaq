@@ -18,7 +18,7 @@ is to navigate through field, detect obstacle, map the field and find a
 red spot somewhere in the field. Example of the field can be seen in
 Figure below and the whole assignment is described in [Assigment PDF](pdf/robotics.pdf).
 
-The in detail final description and results can be found in [report.pdf](pdf/report.pdf).
+Detailed final description and results can be found in [report.pdf](pdf/report.pdf).
 
 ![Example of the field for robot](image/robotics.jpg)
 
@@ -42,7 +42,7 @@ For simulated robot robot:
 - run VREP simulator
 - load [scene.ttt](vrep/scene.ttt)
 - run [main_vrep.py](main_vrep.py)
-  - windows with PyGame should appear and robot should start to move
+  - window with PyGame should appear and robot should start to move
 
 For real robot:
 - Connect to the robot with tutorials at [EV3Dev](https://www.ev3dev.org/)
@@ -104,8 +104,8 @@ The behaviour of the robot is divided in two steps:
     to the upper corner of the map. In this part it does these things:
     - Mapping the field - add free position and position of obstacles
       to the map.
-    - Avoiding obstacles - if obstacle if found, robot move to the safe
-      position and try to get around it.
+    - Avoiding obstacles - if obstacle is found, robot moves to the safe
+      position and tries to get around it.
     - Looking for final red point - if red is found, robot ends its
       movement.
 
@@ -116,7 +116,7 @@ the map. The behaviour is described in [this file](prolog/state_machine.pl).
 The main Python program is communicating with prolog interpreter with
 the use of [PySwip](https://github.com/yuce/pyswip) bridge. The position
 of the robot is dynamically asserted into prolog knowledge base and
-prolog is returning the proper state for state machine.
+prolog is returning the proper state for the state machine.
 
 # Results
 
@@ -125,7 +125,7 @@ Here will be described results just in short points.
 
 **Simulated robot**
 
-Video result of simulated robot can be seen on video below.
+Video result of simulated robot can be seen in video below.
 
 ![VREP](videos/vrep.gif)
 
