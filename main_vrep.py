@@ -28,7 +28,7 @@ prolog.assertz("column("+str(column)+")")
 def update_map(one_id):
     """
     Function to update GUI
-    :param one_id: id of the current robot possition, array [x,y]
+    :param one_id: id of the current robot position, array [x,y]
     :return: None
     """
 
